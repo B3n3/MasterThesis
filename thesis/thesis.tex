@@ -1,0 +1,200 @@
+% Copyright (C) 2014-2016 by Thomas Auzinger <thomas@auzinger.name>
+
+\documentclass[draft,final]{vutinfth} % Remove option 'final' to obtain debug information.
+\setcounter{tocdepth}{2}
+
+% Load packages to allow in- and output of non-ASCII characters.
+\usepackage{lmodern}        % Use an extension of the original Computer Modern font to minimize the use of bitmapped letters.
+\usepackage[T1]{fontenc}    % Determines font encoding of the output. Font packages have to be included before this line.
+\usepackage[utf8]{inputenc} % Determines encoding of the input. All input files have to use UTF8 encoding.
+
+% Extended LaTeX functionality is enables by including packages with \usepackage{...}.
+\usepackage{amsmath}    % Extended typesetting of mathematical expression.
+\usepackage{amssymb}    % Provides a multitude of mathematical symbols.
+\usepackage{mathtools}  % Further extensions of mathematical typesetting.
+\usepackage{microtype}  % Small-scale typographic enhancements.
+\usepackage[inline]{enumitem} % User control over the layout of lists (itemize, enumerate, description).
+\usepackage{multirow}   % Allows table elements to span several rows.
+\usepackage{booktabs}   % Improves the typesettings of tables.
+\usepackage{subcaption} % Allows the use of subfigures and enables their referencing.
+\usepackage[ruled,linesnumbered,algochapter]{algorithm2e} % Enables the writing of pseudo code.
+\usepackage[usenames,dvipsnames,table]{xcolor} % Allows the definition and use of colors. This package has to be included before tikz.
+\usepackage{nag}       % Issues warnings when best practices in writing LaTeX documents are violated.
+\usepackage{todonotes} % Provides tooltip-like todo notes.
+\usepackage[pdftex,
+            colorlinks=true]{hyperref} % Enables cross linking in the electronic document version. This package has to be included second to last.
+\usepackage[acronym,toc]{glossaries} % Enables the generation of glossaries and lists fo acronyms. This package has to be included last.
+
+%Source Code stuff
+\usepackage[newfloat]{minted}
+\usepackage{morewrites}
+\usepackage[strings]{underscore} %BibTex doesn't like underscores in the URL
+%\usepackage{float} % force figures to be placed in text
+
+\newenvironment{code}{\captionsetup{type=listing}}{}
+\SetupFloatingEnvironment{listing}{name=Source Code}
+
+% Define convenience functions to use the author name and the thesis title in the PDF document properties.
+\newcommand{\authorname}{Benedikt Wedenik} % The author name without titles.
+\newcommand{\thesistitle}{A Big Data Analytics Framework for Evaluating Automated Elastic Scalability of the SMACK-Stack} % The title of the thesis. The English version should be used, if it exists.
+
+% Set PDF document properties
+\hypersetup{
+    pdfpagelayout   = TwoPageRight,           % How the document is shown in PDF viewers (optional).
+    linkbordercolor = {Melon},                % The color of the borders of boxes around crosslinks (optional).
+    pdfauthor       = {\authorname},          % The author's name in the document properties (optional).
+    pdftitle        = {\thesistitle},         % The document's title in the document properties (optional).
+    pdfsubject      = {Master Thesis - SMACK Stack - Benedikt Wedenik},              % The document's subject in the document properties (optional).
+    pdfkeywords     = {Big Data, Data Analytics, SMACK Stack, Scalability, Spark, Kafka, Akka, Cassandra, Mesos, DC/OS, Cloud Computing, Elasticity} % The document's keywords in the document properties (optional).
+}
+
+\setpnumwidth{2.5em}        % Avoid overfull hboxes in the table of contents (see memoir manual).
+\setsecnumdepth{subsection} % Enumerate subsections.
+
+\nonzeroparskip             % Create space between paragraphs (optional).
+\setlength{\parindent}{0pt} % Remove paragraph identation (optional).
+
+\makeindex      % Use an optional index.
+\makeglossaries % Use an optional glossary.
+%\glstocfalse   % Remove the glossaries from the table of contents.
+
+% Set persons with 4 arguments:
+%  {title before name}{name}{title after name}{gender}
+%  where both titles are optional (i.e. can be given as empty brackets {}).
+\setauthor{}{\authorname}{BSc}{male}
+\setadvisor{Univ.Prof. Mag.rer.soc.oec. Dr.rer.soc.oec.}{Schahram Dustdar}{}{male}
+
+% For bachelor and master theses:
+\setfirstassistant{Projektass. Dipl.-Ing. Dr.techn.}{Stefan Nastic}{BSc}{male}
+
+% Required data.
+\setaddress{Muristrasse 87, 3006 Bern, Schweiz}
+\setregnumber{1227151}
+\setdate{24}{07}{2018} % Set date with 3 arguments: {day}{month}{year}.
+\settitle{\thesistitle}{A Big Data Analytics Framework for Evaluating Automated Elastic Scalability of the SMACK-Stack} % Sets English and German version of the title (both can be English or German).
+\setsubtitle{}{} % Sets English and German version of the subtitle (both can be English or German).
+
+% Select the thesis type: bachelor / master / doctor / phd-school.
+% Bachelor:
+%\setthesis{bachelor}
+%
+% Master:
+\setthesis{master}
+\setmasterdegree{dipl.} % dipl. / rer.nat. / rer.soc.oec. / master
+%
+% Doctor:
+%\setthesis{doctor}
+%\setdoctordegree{rer.soc.oec.}% rer.nat. / techn. / rer.soc.oec.
+%
+% Doctor at the PhD School
+%\setthesis{phd-school} % Deactivate non-English title pages (see below)
+
+% For bachelor and master:
+\setcurriculum{Software Engineering and Internet Computing}{Software Engineering and Internet Computing} % Sets the English and German name of the curriculum.
+
+\begin{document}
+
+\frontmatter % Switches to roman numbering.
+% The structure of the thesis has to conform to
+%  http://www.informatik.tuwien.ac.at/dekanat
+
+\addtitlepage{naustrian} % German title page (not for dissertations at the PhD School).
+\addtitlepage{english} % English title page.
+\addstatementpage
+
+\begin{acknowledgements*}
+Working and writing a thesis in parallel consumes a lot of time and energy.
+I want to thank my girlfriend Rita for supporting me during this time and being patient with me.\\
+Further I want to thank Dr. Stefan Nastic for skillfully supporting me and giving me valuable feedback (even on the weekend).
+Of course this thesis would have never been realized without the help of Prof. Schahram Dustdar.\\
+At this point I want to emphasize the kind sponsoring of Zühlke Engineering AG in form of time, budget, real IoT data and expertise.\\
+Last but not least I want to say that I'm grateful for my family and my friends for always believing in me.
+\end{acknowledgements*}
+
+\begin{kurzfassung}
+In den letzten Jahren ist der Bedarf an schneller Verfügbarkeit von Informationen, sowie an kurzen Antwortzeiten gestiegen.
+Die Anforderungen an ein heutiges Businesskonzept sind im Wandel: Stunden- oder gar tagelanges Warten auf die Ergebnisse einer Abfrage ist in vielen Branchen schlichtweg nicht mehr akzeptabel.
+Die Antwort kommt sofort oder die Anfrage wird verworfen - genau hier setzt der Begriff "Fast Data" ein.
+Mit dem SMACK Stack, bestehend aus Spark, Mesos, Akka, Cassandra und Kafka, wird eine robuste und vielseitige Datenverarbeitungsplattform bereitgestellt, auf der Fast Data Applikationen ausgeführt werden können.
+In dieser Thesis wird ein Framework vorgestellt, mit dessen Hilfe Services und Ressourcen innerhalb des Stacks einfach skaliert werden können.
+Die Hauptbeiträge können wie folgt zusammengefasst werden:
+1) Entwicklung und Evaluation des genannten Frameworks, einschließlich der Monitoring-Metrik Extraktion \& Aggregation, sowie des Skalierungsservices selbst.
+2) Implementierung zweier real-world Referenzapplikationen.
+3) Bereitstellung von Infrastruktur-Management Tools mit deren Hilfe der Stack einfach in der Cloud deployt werden kann.
+4) Bereitstellung von Deployment-Vorlagen in Form von Empfehlungen, wie der Stack initial am besten für die vorhandenen Ressourcen konfiguriert und gestartet wird.
+Für die Evaluierung des Frameworks werden die zwei entwickelten real-world Applikationen herangezogen.
+Die erste Applikation basiert auf der Verarbeitung von IoT Daten und ist stark I/O-lastig, während die zweite Applikation kleinere Datenmengen verarbeitet, dafür aber teurere Berechnungen durchführt, um Vorhersagen aufgrund der IoT Daten zu treffen.
+Die Resultate zeigen, dass das Framework in der Lage ist zu erkennen, welcher Teil des Systems gerade unter hoher Last steht und diesen dann automatisch zu skalieren.
+Bei der IoT Applikation konnte der Datendurchsatz um bis zu 73\% erhöht werden, während die Vorhersageapplikation in der Lage war bis zu 169\% mehr Nachrichten zu bearbeiten, wenn das Framework aktiviert wurde.
+Obwohl die Resultate vielversprechend aussehen, gibt es noch Potenzial für weitere Verbesserungen, wie zum Beispiel der Einsatz von maschinellem Lernen um Schwellwerte intelligent anzupassen, oder eine breitere und erweiterte REST API.
+\end{kurzfassung}
+
+\begin{abstract}
+In the last years the demand for information availability and shorter response times has been increasing.
+Today's business requirements are changing: Waiting hours or even days for the result of a query is not acceptable anymore in many sectors.
+The response needs to be immediate, or the query is discarded - This is where "Fast Data" begins.
+With the SMACK Stack, consisting of Spark, Mesos, Akka, Cassandra and Kafka, a robust and versatile platform and toolset to successfully run Fast Data applications is provided.
+In this thesis a framework to correctly scale services and distribute resources within the stack is introduced.
+The main contributions of this thesis are:
+1) Development and evaluation of the mentioned framework, including monitoring metrics extraction and aggregation, as well as the scaling service itself.
+2) Implementation of two real-world reference applications.
+3) Providing infrastructure management tools to easily deploy the stack in the cloud.
+4) Deployment blueprints in form of recommendations on how to initially set up and configure available resources are provided.
+To evaluate the framework, the real world applications are used for benchmarking.
+One application is based on IoT data and is mainly I/O demanding, while the other one is computationally bound and provides predictions based on IoT data.
+The results indicate, that the framework performs well in terms of identifying which component is under heavy stress and scaling it automatically.
+This leads to an increase of throughput in the IoT application of up to 73\%, while the prediction application is able to handle up to 169\% more messages when using the supervising framework.
+While the results look promising, there is still potential for future work, like using machine learning to better handle thresholds or an extended REST API.
+\end{abstract}
+
+% Select the language of the thesis, e.g., english or naustrian.
+\selectlanguage{english}
+
+% Add a table of contents (toc).
+\tableofcontents % Starred version, i.e., \tableofcontents*, removes the self-entry.
+
+% Switch to arabic numbering and start the enumeration of chapters in the table of content.
+\mainmatter
+
+
+%%%%%%%% CHAPTER %%%%%%%%%
+\include{introduction}
+
+%%%%%%%% CHAPTER %%%%%%%%%
+\include{related}
+
+%%%%%%%% CHAPTER %%%%%%%%%
+\include{methodology}
+\include{jmxTables}
+
+%%%%%%%% CHAPTER %%%%%%%%%
+\include{evaluation}
+\include{results}
+
+%%%%%%%% CHAPTER %%%%%%%%%
+\include{conclusion}
+
+
+\backmatter
+
+% Use an optional list of figures.
+\listoffigures % Starred version, i.e., \listoffigures*, removes the toc entry.
+
+% Use an optional list of tables.
+\cleardoublepage % Start list of tables on the next empty right hand page.
+\listoftables % Starred version, i.e., \listoftables*, removes the toc entry.
+
+\cleardoublepage
+\listoflistings
+
+% Add an index.
+\printindex
+
+% Add a glossary.
+\printglossaries
+
+% Add a bibliography.
+\bibliographystyle{abbrv}
+\bibliography{cites}
+
+\end{document}

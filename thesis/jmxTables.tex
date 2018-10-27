@@ -1,0 +1,135 @@
+\begin{table}[]
+\begin{tabular}{@{}lp{7.5cm}l@{}}
+\toprule
+MBean & Description & Attributes \\ \midrule
+UnderReplicatedPartitions     &  This is an indicator of availability and the value should exceed zero only for a short time.
+                                 Longer periods of under replication are an indicator of potential problems with Kafka's high-availability.
+                                 & Value \\
+ActiveControllerCount         &  Equals the number of active controller within the Kafka cluster.
+                                 In each cluster there has to be exactly one controller.
+                                 This is an urgent indicator for errors if the value zero.
+                                 & Value \\
+OfflinePartitionsCount        &  In case a partition loses its leader, it goes offline and becomes inaccessible by producers and consumers.
+                                 This is because all operations have to be performed by the leader.
+                                 Any value above zero is alarming.
+                                 & Value \\
+UncleanLeaderElectionsPerSec  &  The metric is a good indicator for data loss, as every topic must have a leader.
+                                 In case a leader gets offline and Kafka is not able to elect a new one, an out-of-sync replica will be elected, even if it means that some messages are lost forever.
+                                 Any value above zero should be considered as potential error.
+                                 & OneMinuteRate \\
+TotalTimeMs Produce           &  Indicates the total time it takes Kafka to serve a request.
+                                 In this case it is the time from the producer's request until the data is sent.
+                                 The metric comprises the time in the queue, local processing time of the leader, waiting time of the followers and the time to send respond.
+                                 Big fluctuations and suspiciously long waiting times are indicators for performance problems.
+                                 & Count, Mean \\
+TotalTimeMs FetchConsumer     &  Same as above, but the time from the consumer's request until the data is received.  & Count, Mean \\
+TotalTimeMs FetchFollower     &  Same as above, but the time from the broker's follower request until the data is received
+                                 & Count, Mean \\
+BytesInPerSec                 &  Gives information of how many bytes per second are received.
+                                 Can be an indicator if an upper bound of the system is known by experimenting.
+                                 & OneMinuteRate \\
+BytesOutPerSec                &  Same as above, but the bytes send per second.  & OneMinuteRate \\
+\bottomrule
+\end{tabular}
+\centering
+\caption{Relevant Kafka JMX Metrics}
+\label{tab:jmx_kafka}
+\end{table}
+
+
+\begin{table}[]
+    \begin{tabular}{@{}p{3.2cm}p{2.7cm}p{6.7cm}p{2.2cm}@{}}
+\toprule
+MBean                                                & Scope             & Description & Attributes \\ \midrule
+\textbf{ClientRequest}: Latency, TotalLatency                & Read, Write       &
+                                                             Describes the latency of a client request.
+                                                             The total value is accumulated in milliseconds while the latency count provides the number of events.
+                                                             & OneMinuteRate, Count \\
+
+\textbf{Cache}: Hits, Requests                               & KeyCache          &
+                                                             The KeyCache hit rate indicates the percentage of how many of the read requests keys were found in the cache on disk.
+                                                             This can be an indicator for performance loss if there are very little cache hits.
+                                                             & Count \\
+\textbf{Storage}: Load, Exceptions                           & n.a.              &
+                                                             The load tells how many bytes per node are used by Cassandra.
+                                                             With the exceptions count it is possible to determine how many errors - fatal and non-fatal - occurred on a node.
+                                                             If this value is increasing, something goes wrong in the cluster.
+                                                             & Count \\
+\textbf{Compaction}: CompletedTasks, PendingTasks            & n.a.              &
+                                                             Reflects the number of successful compaction tasks, respectively the ones in the waiting queue.
+                                                             A lot of pending tasks is an indicator for potential overload on the cluster, as it is not enough time to compact the data.
+                                                             & Value \\
+\textbf{GarbageCollector}: ParNew, ConcurrentMarkSweep       & n.a.              &
+                                                             The ParNew is the young-generation Java garbage collector in the JVM.
+                                                             Everytime it frees up unused memory all application threads get paused and thus it directly affects the performance of Cassandra.
+                                                             While ConcurrentMarkSweep does not block all threads it handles the old-generation part of the JVM heap.
+                                                             An increasing value of the garbage collector execution is an indicator for too little RAM in the cluster.
+                                                             & CollectionCount, CollectionTime \\
+\textbf{ThreadPools}: PendingTask, CurrentlyBlockedTasks     & MutationStage, ReadRepairStage, ReadStage, RequestResponseStage        &
+                                                             This MBean gives information about pending and blocked tasks in the thread pools.
+                                                             In the RequestResponseStage all callbacks to responses to a request are executed with the original request.
+                                                             The ReadStage comprises the execution of a local read including cache deserialization.
+                                                             In the MutationStage inserts, updates, schema merges and log replays are performed.
+                                                             The ReadRepairStage executes read repairs if necessary.
+                                                             The increase of the count in those metrics could mean that there is a disk issue, overload or some performance problem with Cassandra.
+                                                             & Count \\
+\bottomrule
+\end{tabular}
+\centering
+\caption{Relevant Cassandra JMX Metrics}
+\label{tab:jmx_cassandra}
+\end{table}
+
+
+\begin{table}[]
+\begin{tabular}{@{}lp{8cm}l@{}}
+\toprule
+MBean & Description & Attributes \\ \midrule
+ProcessingTime                & The absolut time to process a received message.
+                                If the value exceeds a certain threshold it is very likely that Akka is running out of resources.
+                              & Max, Sum \\
+KBytes per Second             & As the name indicates, it referrs to the number of KB input per second.
+                                Knowing the underlying system this can be a warning indicator if there is too much data to handle for Akka.
+                              & Avg \\
+Messages per Second           & Same as above but messages per second.
+                                The value does not necessarily correlate with the KB/s, as messages can vary dramatically in size.
+                              & Avg \\
+TimeInMailbox                 & Equals the absolute time a message is kept in an actors mailbox.
+                                This metric is a very good indicator for an overload of Akka, as the value usually fluctuates only very little, an increase of it means that Akka is running out of resources.
+                              & Sum \\
+MailboxSize                   & This metric corresponds to the absolute mailbox size of an actor.
+                                Same as time in mailbox, there is no significant fluctuation during regular load on the system.
+                                As the value increases, Akka is going to run out of resources very soon.
+                              & Sum \\
+Errors                        & A value above zero means, that there happend some major errors during the runtime of the application.
+                              & Count \\
+\bottomrule
+\end{tabular}
+\centering
+\caption{Relevant Akka JMX Metrics}
+\label{tab:jmx_akka}
+\end{table}
+
+
+
+\begin{table}[]
+\begin{tabular}{@{}lp{8cm}l@{}}
+\toprule
+MBean & Description & Attributes \\ \midrule
+DAGScheduler.messageProcessingTime                        & Indicates how long it takes Spark to process one message at a time. If this value is increasing it is a very good indicator that the application needs more resources.
+                              & OneMinuteRate \\
+DAGScheduler.stage.runningStages                        & This metric represents the amount of stages running in parallel. This value should not be zero as it would mean that no processing is done.
+                              & Value \\
+DAGScheduler.stage.waitingStages                        & In case this value increases steadily, Spark is not able to handle new requests or tasks quick enough. It is an indicator for insufficient resources.
+                              & Value \\
+BlockManager.memory.memUsed\_MB                        & It is interesting to keep an eye on the used memory to see whether Spark is already close to the limit of what is provided or not.
+                              & Value \\
+streaming.totalProcessedRecords                        & The amount of totally processed records should steadily increase. A stagnation is an indicator that Spark cannot perform its tasks anymore.
+                              & Value \\
+\bottomrule
+\end{tabular}
+\centering
+\caption{Relevant Spark JMX Metrics}
+\label{tab:jmx_spark}
+\end{table}
+

@@ -1,0 +1,74 @@
+\chapter{Conclusion}
+\label{ch:conclusion}
+In this chapter the content of the thesis is summarized and the results are discussed.
+Further, open issues and possible future work are addressed.
+
+
+\section{Open Issues \& Future Work}
+In this section the yet unsolved challenges and possible future work are discussed, while the focus lies on the parts which could benefit most from improvement.\\
+
+As illustrated in Figure~\ref{fig:prediction_vs_real}, the Kolmogorov Smirnov test shows, that the prediction correlates with the real measured values.
+Still there is an obvious bias, which could be eliminated or at least decreased.
+The quality of the prediction could be further improved in many ways, from fine-tuning the used ARIMA model, to using highly sophisticated machine learning algorithms to produce very accurate predictions.
+As this is not the core topic of the thesis, it is left open as possible future work.\\
+In the current state, the predictions of the Acceleration Prediction Application are exposed via a simple REST API.
+This API is subject of possible further extension, like providing historical data as well as a filtered view per device.
+Depending on the underlying business case, a control panel or dashboard could be implemented to provide information of how the system will behave, based on the calculated predictions.\\
+
+Unfortunately scaling down is not supported for Kafka and Cassandra, due to the restrictions of DC/OS \cite{mesosphere}, \cite{cassandra_limitations}.
+As this limitation is not easy to overcome with a workaround, the suggestion is to wait until Mesosphere provides this functionality and then upgrading to the latest version.\\
+
+In the current state, many JMX values are extracted and sent to the monitoring service.
+The selection of what to extract could be refined further to reduce overhead and only focus on what is important.
+Another possible strategy would be to implement a broader spectrum of extracted values, and then use a dashboard, like for example \href{https://www.datadoghq.com/}{DataDog}, to provide real-time analysis of the cluster.
+As the degree of information is high enough for the purpose of this thesis, this improvement is not considered crucial.\\
+
+Currently the threshold management in the Scaling Tool is hard-coded and static, which is an obvious place for further improvements.
+To provide dynamic adoptions to the cluster size or the requirements during operation, a dashboard for system administrators could be implemented where the thresholds can be adjusted during runtime.
+Another possibility would be to add machine learning algorithms, to improve the accuracy of detecting when a system or one component is under heavy stress and act proactively.
+As this is probably a very lucrative investment, this improvement should be prioritized.\\
+In addition to the CLI, a GUI could be designed to make the whole user experience with the Scaling Tool more valuable.\\
+
+Performing more and extended experiments with the SMACK stack offers a lot of potential for future work.
+On the one hand, more different kinds of applications could be deployed and investigated in terms of scalability.
+On the other hand, it would be interesting to measure how well the system behaves on an even bigger cluster.
+There are many possibilities to perform experiments with this technology stack, including the tools developed in the course of this thesis.
+As the SMACK stack gains popularity, deeper investigations concerning its behavior under various situations would be a valuable investment of research time and budget.
+
+\section{Summary}
+As Big Data platforms are becoming more and more relevant in today's applications, new challenges appear during engineering and operating those stacks.
+In this work, a Big Data analytics framework for evaluating automated elastic scalability of the SMACK stack is developed and introduced.
+The challenges which are tried to be solved by the framework can be summarized as follows:
+
+\begin{itemize}
+\item Deploying large scale applications\\
+      This can be challenging, especially in case productive applications need to be deployed and orchestrated automatically.
+\item Initial setup\\
+      The provided configuration allows the cluster manager to allocate resources for the respective applications.
+      It requires experience to do it "first time right".
+\item Monitoring\\
+      As there are plenty of monitoring tools available on the market, picking the right one can be a challenge.
+      Further, the extraction of metrics which give valuable insight into an application's health is crucial.
+\item Reacting on the monitored metrics - i.e. Scaling when needed\\
+      A modern monitoring tool is expected to provide reactive actions in case the monitored metrics diverge from the defined thresholds.
+      Being able to scale different kinds of applications can be difficult.
+\end{itemize}
+
+By providing an infrastructure launching tool, the deployment of the whole SMACK stack can be performed easily by executing two command line scripts.
+The initial setup can be deduced from the provided deployment blueprints, which give a recommendation about how to distribute available resources for a given application.
+With the help of the integrated monitoring metrics extraction service and the monitoring metrics aggregation service, the running services can be observed in detail.
+In case a service under heavy load and is close to its limits, the scaling service of the framework takes care to automatically or semi-automatically scale up the respective component.\\
+
+As part of the contribution, two real world applications have been developed in order to provide a valid base for the evaluation of the framework.
+The "IoT Data Storage Application" is mainly I/O bound and represents applications which require high throughput.
+In case of the "Acceleration Prediction Application", a prediction based on IoT data is performed, which is heavily computational intense.\\
+
+To evaluate the actual impact of the framework, empirical experiments have been conducted.
+The setup comprises one run without the framework - i.e. unsupervised, which serves as a baseline, and a supervised one, in which the framework automatically scales the respective services.
+When analyzing the measured results, both applications benefit from the scaling service.\\
+An increase from 272 to 472 MBit/s was measured when running the "IoT Data Storage Application", as well as other metrics like the time-in-mailbox of a message could be improved.
+The computational bound "Acceleration Prediction Application" benefited in form of shorter message processing times and an overall faster task completion.\\
+
+Concluding it can be said, that the framework enables developers and system administrators to more easily launch and deploy the SMACK stack into the cloud.
+The automated monitoring and scaling reduces manual efforts and pitfalls and is proven to improve the performance of I/O or computational bound applications.
+Open issues and possible future work are discussed in the previous section in detail.

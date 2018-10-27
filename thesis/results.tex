@@ -1,0 +1,276 @@
+\section{Results}
+This section comprises the results of the executed benchmarks.
+The generated plots of the described metrics are described and compared with each other.\\
+
+To be able to better compare the values, two more variations of diagrams are added:
+\begin{itemize}
+    \item \textbf{Average}:\\
+        The average values of all nodes, implemented With a shifting time window.
+        This can be used for metrics like time-in-mailbox, mailbox-size, and so on.
+        The caption is in form of \verb|Attribute_avg|
+    \item \textbf{Sum}:\\
+        Summed up values, also implemented with a shifting time window.
+        This can be used for metrics like kbytes-per-second, messages-per-second, etc.
+        The caption is in form of \verb|Attribute (sum)|
+\end{itemize}
+
+
+% Command to insert a plot
+\newcommand{\plot}[3]{ \plotsize{#1}{#2}{#3}{0.30} }
+\newcommand{\plotsize}[4]{
+\begin{figure}[h]
+  \centering
+  \includegraphics[keepaspectratio=true,scale=#4]{img/results/#1}
+    \caption{#3}
+  \label{fig:#2}
+\end{figure}
+}
+
+\subsection{IoT Data Storage Application}
+\subsubsection{Akka}
+In Figure~\ref{fig:without_akka_kbytes_per_second} one can see how many kilo bytes are handled by the Akka ingestion application without the help of the Scaling Tool.
+First there is no input, as the stack is still launching and the load generator was not started.
+After that, a steadily increasing load gets up to about 24 MB/s (= 192 MBit/s), but does not exceed the value.
+Apparently then the application was under too heavy load and the load generator was stopped.
+After a recovery phase, the load was again increased steadily, this time reaching up to 34 MB/s (= 272 MBit/s).\\
+Figure~\ref{fig:with_akka_kbytes_per_second_separate} shows the same metric (each host is illustrated separately), but with the interacting scaling tool.
+Additionally Figure~\ref{fig:with_akka_kbytes_per_second_sum} is showing the summed up ingested kilo bytes and displays only one curve for a better comparability.
+One can observe, that that after a certain load, new instances were added by the Scaling Tool.
+Further, there is one instance which was killed by Mesos and restarted later on.\\
+The increase of the load is similar to the previous experiment: First there is so much load added that the system gets under too much stress and after a recovery phase, the load is steadily increased again.
+In this scenario the peak is at about 59 MB/s (= 472 MBit/s).\\
+
+Figure~\ref{fig:without_akka_messages_per_second}, \ref{fig:with_akka_messages_per_second_separate} and \ref{fig:with_akka_messages_per_second_sum} show a very similar behavior, as they represent the received messages per second.\\
+As one can see, there is this a sudden drop of messages-per-second in Figure~\ref{fig:with_akka_messages_per_second_sum}.
+This is a result of the sliding time window, as for this timestamp there is apparently just the information of one node available, which is then of course a lower value than when adding multiple ones.
+A clear observation which can be made, is that the run with the Scaling Tool performs better in terms of throughput.\\
+
+Concerning the message processing time, Figure~\ref{fig:without_akka_processing_time} shows a similar development as the messages per second and kilo bytes per second.
+The time increases steadily, reaches the plateau, drops to zero and then increases steadily after the recovery phase.
+An increase of the processing time, means directly that the system gets under more stress and the respons time gets slower.\\
+Figure~\ref{fig:with_akka_processing_time_separate} illustrates the same metric but with enabled Scaling Tool, as well as Figure~\ref{fig:with_akka_processing_time_avg}, but with an averaged values over all hosts.
+As one can see, the message processing time develops a bit smoother than the previous metrics.
+The increase is not as steep and in the runs with the Scaling Tool, the three running instances provide an adequate processing time even under heavy load.
+This behavior is desired and the response time is distributed equally between the nodes, according to the plot.\\
+
+Related to the processing time, there is the time in mailbox metric which is illustrated in Figure~\ref{fig:without_akka_time_in_mailbox} for the run without the Scaling Tool.
+Here the dramatically high peak indicates, that the system cannot process the messages in time anymore.
+The sudden increase gives a hint, that at the given time, the Akka application started to become unresponsive.
+Comparing this with Figure~\ref{fig:with_akka_time_in_mailbox_separate} and Figure~\ref{fig:with_akka_time_in_mailbox_sum}, which are the plots of the Scaling Tool run, one can observe, that although there is a high peak right at the beginning of the run, the system was able to recover immediately and the freshly added instances had a significantly lower value than the existing one.
+This could be because the mailbox of the existing instance is already filled with messages, while the new instances obviously start with an empty mailbox.
+Similar as in the processing time plots, the load is evenly balanced between the instances in the second half of the run, as the load is increased.\\
+The mailbox size itself is displayed in Figure~\ref{fig:without_akka_mailbox_size}, where the experiment is performed without the Scaling Tool and in Figure~\ref{fig:with_akka_mailbox_size_separate} and Figure~\ref{fig:with_akka_mailbox_size_sum} with the enabled tool.
+As expected, the mailbox size correlates to the message processing time and the time in mailbox.
+
+
+
+% Akka KBytes per second
+\plot{iot_before/akka_kbytes_per_second}{without_akka_kbytes_per_second}{Akka, Without Scaling Tool, KBytes per Second}
+\plot{iot_after/akka_kbytes_per_second_separate}{with_akka_kbytes_per_second_separate}{Akka, With Scaling Tool, KBytes per Second, Separated by Host}
+\plot{iot_after/akka_kbytes_per_second_sum}{with_akka_kbytes_per_second_sum}{Akka, With Scaling Tool, KBytes per Second, Summed up}
+
+% Akka messages per second
+\plot{iot_before/akka_messages_per_second}{without_akka_messages_per_second}{Akka, Without Scaling Tool, Messages per Second}
+\plot{iot_after/akka_messages_per_second_separate}{with_akka_messages_per_second_separate}{Akka, With Scaling Tool, Messages per Second, Separated by Host}
+\plot{iot_after/akka_messages_per_second_sum}{with_akka_messages_per_second_sum}{Akka, With Scaling Tool, Messages per Second, Summed up}
+
+% Akka processing time
+\plot{iot_before/akka_processing_time}{without_akka_processing_time}{Akka, Without Scaling Tool, Processing Time}
+\plot{iot_after/akka_processing_time_separate}{with_akka_processing_time_separate}{Akka, With Scaling Tool, Processing Time, Separated by Host}
+\plot{iot_after/akka_processing_time_avg}{with_akka_processing_time_avg}{Akka, With Scaling Tool, Processing Time, Averaged over Hosts}
+
+% Akka time in mailbox
+\plot{iot_before/akka_time_in_mailbox}{without_akka_time_in_mailbox}{Akka, Without Scaling Tool, Time in Mailbox}
+\plot{iot_after/akka_time_in_mailbox_separate}{with_akka_time_in_mailbox_separate}{Akka, With Scaling Tool, Time in Mailbox, Separated by Host}
+\plot{iot_after/akka_time_in_mailbox_sum}{with_akka_time_in_mailbox_sum}{Akka, With Scaling Tool, Time in Mailbox, Summed up}
+
+% Akka mailbox size
+\plot{iot_before/akka_mailbox_size}{without_akka_mailbox_size}{Akka, Without Scaling Tool, Mailbox Size}
+\plot{iot_after/akka_mailbox_size_separate}{with_akka_mailbox_size_separate}{Akka, With Scaling Tool, Mailbox Size, Separated by Host}
+\plot{iot_after/akka_mailbox_size_sum}{with_akka_mailbox_size_sum}{Akka, With Scaling Tool, Mailbox Size, Summed up}
+
+
+\subsubsection{Kafka}
+In the data pipeline, Kafka is the second element and gets its data directly from the Akka ingestion application, while the Spark job is polling from the topic.
+The consumed data is measured in bytes per second, once illustrated as separate curve per host, once summed up to be better comparable.
+Figure~\ref{fig:without_kafka_bytes_in_separate} and Figure~\ref{fig:without_kafka_bytes_in_sum} show the results of the run before the Scaling Tool is active,
+while Figure~\ref{fig:with_kafka_bytes_in_separate} and Figure~\ref{fig:with_kafka_bytes_in_sum} illustrate the same metric with the tool being enabled.\\
+The curves are similar to the ones in Figure~\ref{fig:without_akka_kbytes_per_second}, \ref{fig:with_akka_kbytes_per_second_separate} and \ref{fig:with_akka_kbytes_per_second_sum}, where the consumed bytes of Akka are shown.
+The highest value of the uncontrolled run is about 33 MB/s, while the supervised one reaches up to 57 MB/s in total, which is expected, as Akka was already able to process more data.
+An interesting observation is, that the load is not distributed equally between the Kafka brokers.
+For example the peak of 29 MB/s one node \verb|10-0-3-37| is about 371\% higher than the one of \verb|10-0-0-6| with just 7.8 MB/s, illustrated in Figure~\ref{fig:with_kafka_bytes_in_separate}.
+The phenomena of the sudden drops in the \textit{summed up} plots was already explained above but should be mentioned here again as it occurs in Figure~\ref{fig:with_kafka_bytes_in_sum} and a result of the sliding time window.\\
+The "BytesOutPerSecond" curve develop very similar to the consumed bytes and can be seen in Figure~\ref{fig:without_kafka_bytes_out_separate}, \ref{fig:without_kafka_bytes_out_sum}, \ref{fig:with_kafka_bytes_out_separate} and \ref{fig:with_kafka_bytes_out_sum}.\\
+
+To see whether Kafka got under too heavy stress, it is required to evaluate, whether there where any under replicated or even offline partitions.
+In the run without the Scaling Tool the load was apparently not heavy enough to bring Kafka down, which is reflected in no under replicated partitions, Figure~\ref{fig:without_kafka_under_replicated_partitions}, and no offline partitions, which can be seen in Figure~\ref{fig:without_kafka_offline_partitions}.
+During the experiment with enabled Scaling Tool, the load became too much for Kafka to handle it and partitions were lost.
+Close to the peak of processed bytes, there were up to 53 under replicated partitions, Figure~\ref{fig:with_kafka_under_replicated_partitions}, and two partitions were offline, illustrated in Figure~\ref{fig:with_kafka_offline_partitions}.\\
+
+Part of the collected metrics are the fetch consumer, fetch follower and produce time, which give an insight in how quick Kafka can interact with consumers and producers.
+In Figure~\ref{fig:without_kafka_time_fetch_consumer_separate}, which reflects the total time in milliseconds of fetching a consumer, the run before enabling the Scaling Tool is shown.
+When inspecting the plot, one can observe again that the load is not distributed equally between the nodes.
+Further the maximum is at about 12000 ms on node \verb|10-0-0-6|, while the maximum in Figure~\ref{fig:with_kafka_time_fetch_consumer_separate} is about 10240 on the same node but with higher load, as the Scaling Tool already scaled up Akka and the load generator fired more requests.
+Interestingly, there are less fluctuations, which could be because the Spark job polls less frequently due to the larger amounts of data.\\
+Another maybe surprising outlier can be seen in Figure~\ref{fig:without_kafka_time_fetch_follower_separate} where the total time for fetching a follower increases dramatically as the data ingestion starts.
+After about 12 minutes the service recovers and the time starts to decrease and stabilize.
+This initial peak is not present in Figure~\ref{fig:with_kafka_time_fetch_follower_separate}, which represents the latter run, possibly because there is no initial phase and the brokers were already warmed up.\\
+The same interesting behavior occurs when measuring the produce time, as illustrated in Figure~\ref{fig:without_kafka_time_produce_separate}, but not as dramatic as for the fetch follower time.
+Similarly the produce time shows no outliers in the run with the Scaling Tool enabled, illustrated in Figure~\ref{fig:with_kafka_time_produce_separate}.
+
+
+% Kafka bytes in
+\plot{iot_before/kafka_bytes_in_separate}{without_kafka_bytes_in_separate}{Kafka, Without Scaling Tool, Bytes In, Separated by Host}
+\plot{iot_after/kafka_bytes_in_separate}{with_kafka_bytes_in_separate}{Kafka, With Scaling Tool, Bytes In, Separated by Host}
+\plot{iot_before/kafka_bytes_in_sum}{without_kafka_bytes_in_sum}{Kafka, Without Scaling Tool, Bytes In, Summed up}
+\plot{iot_after/kafka_bytes_in_sum}{with_kafka_bytes_in_sum}{Kafka, With Scaling Tool, Bytes In, Summed up}
+
+% Kafka bytes out
+\plot{iot_before/kafka_bytes_out_separate}{without_kafka_bytes_out_separate}{Kafka, Without Scaling Tool, Bytes Out, Separated by Host}
+\plot{iot_after/kafka_bytes_out_separate}{with_kafka_bytes_out_separate}{Kafka, With Scaling Tool, Bytes Out, Separated by Host}
+\plot{iot_before/kafka_bytes_out_sum}{without_kafka_bytes_out_sum}{Kafka, Without Scaling Tool, Bytes Out, Separated by Host}
+\plot{iot_after/kafka_bytes_out_sum}{with_kafka_bytes_out_sum}{Kafka, With Scaling Tool, Bytes Out, Separated by Host}
+
+% Kafka offline partitions
+\plot{iot_before/kafka_offline_partitions}{without_kafka_offline_partitions}{Kafka, Without Scaling Tool, Offline Partitions}
+\plot{iot_after/kafka_offline_partitions}{with_kafka_offline_partitions}{Kafka, With Scaling Tool, Offline Partitions}
+
+% Kafka under replicated partitions
+\plot{iot_before/kafka_under_replicated_partitions}{without_kafka_under_replicated_partitions}{Kafka, Without Scaling Tool, Under Replicated Partitions}
+\plot{iot_after/kafka_under_replicated_partitions}{with_kafka_under_replicated_partitions}{Kafka, With Scaling Tool, Under Replicated Partitions}
+
+% Kafka fetch consumer time
+\plot{iot_before/kafka_time_fetch_consumer_separate}{without_kafka_time_fetch_consumer_separate}{Kafka, Without Scaling Tool, Fetch Consumer Time, Separated by Host}
+\plot{iot_after/kafka_time_fetch_consumer_separate}{with_kafka_time_fetch_consumer_separate}{Kafka, With Scaling Tool, Fetch Consumer Time, Separated by Host}
+
+% Kafka fetch follower time
+\plot{iot_before/kafka_time_fetch_follower_separate}{without_kafka_time_fetch_follower_separate}{Kafka, Without Scaling Tool, Fetch Follower Time, Separated by Host}
+\plot{iot_after/kafka_time_fetch_follower_separate}{with_kafka_time_fetch_follower_separate}{Kafka, With Scaling Tool, Fetch Follower Time, Separated by Host}
+
+% Kafka produce time
+\plot{iot_before/kafka_time_produce_separate}{without_kafka_time_produce_separate}{Kafka, Without Scaling Tool, Produce Time, Separated by Host}
+\plot{iot_after/kafka_time_produce_separate}{with_kafka_time_produce_separate}{Kafka, With Scaling Tool, Produce Time, Separated by Host}
+
+
+\subsubsection{Spark}
+When observing the memory usage of Spark, one can observe that it is increasing over time.
+After completing its tasks, Spark releases memory, but as can be seen, the next task allocates more memory than the previous one.
+This behavior is reflected in Figure~\ref{fig:without_spark_memory_used}, where these "steps" can be seen clearly.
+In the run with the active Scaling Tool, more memory is allocated in total, but the steps are larger, as displayed in Figure~\ref{fig:with_spark_memory_used}.\\
+
+Interestingly the OneMinuteRate of the message processing time is measurably lower in the run with the Scaling Tool, shown in Figure~\ref{fig:without_spark_message_processing_time}, although there is more overall load on the system.
+Additionally there is a high peak as the driver is started, which could be because of a high initial load from the first poll from the Kafka topic.
+Figure~\ref{fig:with_spark_message_processing_time} shows the evenly low processing time in the latter run.
+
+% Spark memory used
+\plot{iot_before/spark_memory_used}{without_spark_memory_used}{Spark, Without Scaling Tool, Memory Used in MB}
+\plot{iot_after/spark_memory_used}{with_spark_memory_used}{Spark, With Scaling Tool, Memory Used in MB}
+
+% Spark message processing time
+\plot{iot_before/spark_message_processing_time}{without_spark_message_processing_time}{Spark, Without Scaling Tool, Message Processing Time}
+\plot{iot_after/spark_message_processing_time}{with_spark_message_processing_time}{Spark, With Scaling Tool, Message Processing Time}
+
+\subsubsection{Cassandra}
+The total load of Cassandra is reflected in Figure~\ref{fig:without_cassandra_load}, without the Scaling Tool, and in Figure~\ref{fig:with_cassandra_load} with it.
+In the plots one can see, that in the beginning, the load did not increase, which is because the monitor was already active before the load generator was launched.
+Further it can be observed, that there are two major stagnations of the load in Figure~\ref{fig:with_cassandra_load}, which is when the data ingestion was overloaded and thus no more data was written into the Cassandra database.\\
+Figure~\ref{fig:without_cassandra_read_latency} illustrates the read latency, which is quite constant except for one outlier, which only occurs on one node and thus should not have any impact on the overall performance.
+Comparing it with Figure~\ref{fig:with_cassandra_read_latency}, where the same metric is illustrated but with enabled Scaling Tool, there are two outliers, one of them affecting two nodes at the same time.
+This happens at the same time as the first peak in the ingestion occurs, but luckily Cassandra could recover itself from the stress.\\
+
+Way more fluctuation than in the read latency can be observed in the write latency.
+In both runs, i.e. with and without the Scaling Tool, the latency is significantly higher on one node, which can be seen in Figure~\ref{fig:without_cassandra_write_latency} and Figure~\ref{fig:with_cassandra_write_latency}.
+One explanation for the fluctuations, which look evenly, would be the Spark Streaming job which works internally with batches.
+
+% Cassandra load
+\plot{iot_before/cassandra_load}{without_cassandra_load}{Cassandra, Without Scaling Tool, Load}
+\plot{iot_after/cassandra_load}{with_cassandra_load}{Cassandra, With Scaling Tool, Load}
+
+% Cassandra read latency
+\plot{iot_before/cassandra_read_latency}{without_cassandra_read_latency}{Cassandra, Without Scaling Tool, Read Latency}
+\plot{iot_after/cassandra_read_latency}{with_cassandra_read_latency}{Cassandra, With Scaling Tool, Read Latency}
+
+% Cassandra write latency
+\plot{iot_before/cassandra_write_latency}{without_cassandra_write_latency}{Cassandra, Without Scaling Tool, Write Latency}
+\plot{iot_after/cassandra_write_latency}{with_cassandra_write_latency}{Cassandra, With Scaling Tool, Write Latency}
+
+
+
+\subsection{Acceleration Prediction Application}
+As mentioned before in Section~\ref{sec:evaluation_prediction_application}, the defined metrics to be measured for this application only comprise the Spark components of the whole stack.\\
+
+Figure~\ref{fig:before_without_message_processing_time} shows the OneMinuteRate of the message processing time of the Spark driver, supervising the prediction.
+The values reach from about 21 to a maximum of around 55 21 milliseconds, while the average is at about 40 ms.\\
+When looking at how many tasks have been completed, which is shown in Figure~\ref{fig:before_without_complete_tasks}, one can see that the development of the curve is almost linear.
+In the time between 07:54:56 and 09:13:44, which equals a difference of 1h 18min 48s, 96017 tasks were complete.
+This gives an average of 20.3 tasks per second for the run without the enabled Scaling Tool.\\
+
+When enabling the Scaling Tool the restarted Spark job shows the same behavior in terms of message processing time, Figure~\ref{fig:after_without_message_processing_time}, and also a linear development of the complete tasks metric, illustrated in Figure~\ref{fig:after_without_complete_tasks}.\\
+The Scaling Tools now scaled up the Spark job, which requires a redeployment and thus a new Spark driver.
+In Figure~\ref{fig:after_with_message_processing_time}, the message processing time of the second instance, i.e. the one scaled up, is displayed.
+It can be observed, that the values are significantly lower than in Figure~\ref{fig:before_without_message_processing_time} and reach from about 13 to 34 milliseconds.
+In the beginning the time stays at around 20ms and increases later on, to an average of about 30.
+Further there is a drop again, which could be explained because Spark internally optimizes the scheduler or because an additional executer was launched.\\
+Also in terms of completed tasks this run performs better, which is shown in Figure~\ref{fig:after_with_complete_tasks}.
+In the time between 10:21:53 and 11:01:06, which equals a difference of 39min 12s, 128589 tasks were complete.
+The calculated average is 54.6 tasks per second, which is about 169\% faster than before.
+
+
+% Spark, before, without
+\plotsize{prediction_before/spark_message_processing_time}{before_without_message_processing_time}{Acceleration Prediction, Without Scaling Tool - First Instance, Message Processing Time}{0.28}
+\plotsize{prediction_before/spark_complete_tasks}{before_without_complete_tasks}{Acceleration Prediction, Without Scaling Tool - First Instance, Complete Tasks}{0.28}
+
+% Spark, after, without
+\plotsize{prediction_after/without/spark_message_processing_time}{after_without_message_processing_time}{Acceleration Prediction, Without Scaling Tool - Second Instance, Message Processing Time}{0.28}
+\plotsize{prediction_after/without/spark_complete_tasks}{after_without_complete_tasks}{Acceleration Prediction, Without Scaling Tool - Second Instance, Complete Tasks}{0.28}
+
+% Spark, after, with
+\plotsize{prediction_after/with/spark_message_processing_time}{after_with_message_processing_time}{Acceleration Prediction, With Scaling Tool - Second Instance, Message Processing Time}{0.28}
+\plotsize{prediction_after/with/spark_complete_tasks}{after_with_complete_tasks}{Acceleration Prediction, With Scaling Tool - Second Instance, Complete Tasks}{0.28}
+
+\section{Discussion}
+In this section the detailed results are summarized and the important aspects are highlighted.
+Further open issues and restrictions are discussed to show up possible limitations.
+
+\subsection{Summary}
+As it can be seen in the results, Akka is the bottleneck of the IoT data storage application.
+This can be explained because it is the central ingestion point which has to handle all incoming requests.
+Further there is no heavy computational logic inside the data pipeline which could result in a bottleneck.\\
+It is remarkable, that the use of the Scaling Tool results in a significantly higher throughput in terms of MBit/s, increasing the maximum of 272 when running without the tool to 472 when enabling it.
+The ability to scale up the Akka based service before getting unresponsive is another advantage of the Scaling Tool.
+This behaviour can be observed when looking at the "time in mailbox" metric, where the system is able to recover even though there is a visible trend to a decreasing response time.
+With the mailbox size, a similar situation can be seen.\\
+Kafka shows an expected behaviour in terms of bytes-in and bytes-out, as it correlates to the ones ingested by the Akka based sensor-ingestion.
+Interestingly, Kafka did not distribute the load equally between all available brokers, but it apparently did not affect the performance.
+The most important conclusion about the extracted Kafka metrics is, that only the run with the activated Scaling Tool was able to put enough pressure on Kafka to overload it.
+This is clearly visible when looking at the under replicated and offline partitions, where at the peak 53 partitions were under replicated and two offline.\\
+Spark shows a lower message processing time when using the Scaling Tool, even though there is a higher load to handle.\\
+When investigating Cassandra's performance metrics, it can be seen, that there is a - as expected - higher load to process.
+Notably the read and write latency did not change significantly during the experiments.\\
+
+In the experiment concerning the acceleration prediction application, only the Spark metrics are considered as explained in Section~\ref{sec:evaluation_criteria}.
+The results show, that the message processing time could be reduced by using the Scaling Tool, as well as the number of completed tasks increased.
+Based on the calculated average of the task completion, the run with the enabled Scaling Tool was about 169\% faster.
+
+
+\subsection{Challenges \& Restrictions}
+One challenge with the described setup of the benchmark is clearly that the comparison of the runs depends highly on how the initial setup, i.e. the run without the scaling tool, looks like.
+Assuming that the resources are distributed in the worst possible way for the application, even a poor implementation of the Scaling tool will improve the performance.
+On the other hand, if the resources are already perfectly distributed between the respective services, it is obvious that the Scaling tool will not be able to further improve the performance.\\
+To overcome this issue an intuitive default parametrization is chosen to initially create and launch the stack.\\
+
+Another problem which can occur is that the heavy load of the load generator is too much for the whole cluster.
+This means it is not the stack or the respective services which do not scale correctly, but a network bottleneck causing the stack to fail.
+In the worst case the effect would be the same as a DDoS attack on the DC/OS cluster.
+It would cause the unavailability of the whole system or get some of the nodes offline.\\
+On way to overcome this problem it would be possible to create a stack big enough to surely be able to handle the load, while the services are running on only a few nodes.
+But again there are problems, as the nodes with the services running on it will still have to somehow process the data which then needs to be send to it, requiring an additional load balancing queue.
+Additionally the Scaling tool would of course use the available resources and scale up until all nodes are fully covered.
+But then the load generator would also need to be scaled to be able to put enough pressure on the stack to get it to its limits.\\
+
+The general problem of generating enough requests to get a whole cluster - which is designed to handle heavy load - to its knees is also considerable.
+Thanks to the implementation of the containerized solution of the load generator this task can be achieved with just a little effort by AWS ECS.
+With the service a large number of nodes can be combined to a powerful cluster, dedicated to permanently fire requests to the DC/OS cluster.
+Of course this can get expensive very many nodes are required to reach the critical mass.
+Gladly the performance requirements for these nodes are quite low in terms of CPU, RAM and disk space.
+Due to this, it is possible to still launch many nodes but with less powerful hardware, which significantly reduces costs.
